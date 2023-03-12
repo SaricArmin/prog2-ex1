@@ -1,4 +1,4 @@
-package at.ac.fhcampuswien.fhmdb;
+package at.ac.fhcampuswien.fhmdb.controller;
 
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
