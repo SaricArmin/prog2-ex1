@@ -57,4 +57,11 @@ class HomeControllerTest {
         String sortDesc = homeController.sortMovies(observableMovies);
         assertEquals(sortDesc, "Sort ↓");
     }
+
+    @Test
+    void filterMoviesByEmptyGenreAndSearch(){
+        ObservableList<Movie> movies = homeController.filterMovies("", null, homeController.allMovies);
+        assertFalse(movies.isEmpty());
+        assertEquals(movies.size(), 7); //Wenn man die Daten erweitert wird das hier eventuell fehlschlagen
+    }
 }
