@@ -7,7 +7,7 @@ import java.util.List;
 public class Movie {
 
     //added variables for movies
-    //private final String id;
+    private String id;
     private String title;
     private String description;
     private List<Genre> genres;
@@ -16,7 +16,7 @@ public class Movie {
 
     private String imgUrl;
 
-    private int lengthMin;
+    private int lengthInMinutes;
 
     private List<String> directors;
 
@@ -26,21 +26,30 @@ public class Movie {
 
     private  double rating;
 
-    public Movie(String title, String description, List<Genre> genres, int releaseYear,
-                 String imgUrl, int lengthMin, List<String> directors, List<String> writers,
+    public Movie()
+    {
+
+    }
+    public Movie(String id, String title, String description, List<Genre> genres, int releaseYear,
+                 String imgUrl, int lengthInMinutes, List<String> directors, List<String> writers,
                  List<String> mainCast, double rating) {
+        this.id = id;
         this.title = title;
         this.description = description;
         this.genres = genres;
         this.releaseYear = releaseYear;
         this.imgUrl = imgUrl;
-        this.lengthMin = lengthMin;
+        this.lengthInMinutes = lengthInMinutes;
         this.directors = directors;
         this.writers = writers;
         this.mainCast = mainCast;
         this.rating = rating;
     }
 
+    public String getId()
+    {
+        return id;
+    }
     public String getTitle() {
         return title;
     }
@@ -59,8 +68,8 @@ public class Movie {
         return imgUrl;
     }
 
-    public int getLengthMin() {
-        return lengthMin;
+    public int getlengthInMinutes() {
+        return lengthInMinutes;
     }
     public List<String> getDirectors() {
         return directors;

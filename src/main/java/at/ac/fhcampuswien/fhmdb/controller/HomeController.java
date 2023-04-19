@@ -10,10 +10,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 
 import java.net.URL;
+import java.time.Year;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class HomeController implements Initializable {
     @FXML
@@ -51,6 +54,9 @@ public class HomeController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         observableMovies.addAll(allMovies);         // add dummy data to observable list
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setContentText(getMostPopularActor(observableMovies));
+        alert.showAndWait();
 
         // initialize UI stuff
         movieListView.setItems(observableMovies);   // set data of observable list to list view
@@ -61,11 +67,14 @@ public class HomeController implements Initializable {
 
         yearComboBox.setPromptText("Filter by Release Year");
         List<Integer> allReleaseYears = new ArrayList<>();
+
+        allReleaseYears.add(1234);
         //needs improvements(?)
         yearComboBox.getItems().addAll(allReleaseYears);
 
         ratingComboBox.setPromptText("Filter by Rating");
         List<Double> allRatings = new ArrayList<>();
+        allRatings.add(1234.4214);
         //needs improvements(?)
         ratingComboBox.getItems().addAll(allRatings);
 
@@ -111,5 +120,16 @@ public class HomeController implements Initializable {
                 .filter(movie -> (genre == null || movie.getGenres().contains(genre)))
                 .toList());
         return movies;
+    }
+
+    // Director Count method
+    public static String getMostPopularActor(List<Movie> movies) {
+        Map<String, Long> actorCount = movies.stream()
+                .flatMap(movie -> movie.getMainCast().stream())
+                .collect(Collectors.groupingBy(actor -> actor, Collectors.counting()));
+        return actorCount.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse("");
     }
 }

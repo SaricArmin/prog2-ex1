@@ -18,9 +18,11 @@ public class MovieAPI {
     public static List<Movie> fetchMovies() {
         List<Movie> movies = new ArrayList<>();
         String url = mainURL + "/movies";
+
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)
+                .addHeader("User-Agent", "MyApp/1.0")
                 .build();
         try {
             Response response = client.newCall(request).execute();
