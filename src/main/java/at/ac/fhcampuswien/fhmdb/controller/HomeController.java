@@ -13,10 +13,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class HomeController implements Initializable {
     @FXML
@@ -26,14 +23,19 @@ public class HomeController implements Initializable {
     public TextField searchField;
 
     @FXML
-    public JFXListView<Movie> movieListView;
+    public JFXListView movieListView;
 
     @FXML
     public JFXComboBox<Genre> genreComboBox;
 
     @FXML
-    public JFXButton sortBtn;
+    public JFXComboBox yearComboBox;
 
+    @FXML
+    public JFXComboBox ratingComboBox;
+
+    @FXML
+    public JFXButton sortBtn;
     @FXML
     public JFXButton deleteBtn;
     public List<Movie> allMovies = Movie.initializeMovies();
@@ -57,6 +59,16 @@ public class HomeController implements Initializable {
         genreComboBox.setPromptText("Filter by Genre");
         genreComboBox.getItems().addAll(allGenres);
 
+        yearComboBox.setPromptText("Filter by Release Year");
+        List<Integer> allReleaseYears = new ArrayList<>();
+        //needs improvements(?)
+        yearComboBox.getItems().addAll(allReleaseYears);
+
+        ratingComboBox.setPromptText("Filter by Rating");
+        List<Double> allRatings = new ArrayList<>();
+        //needs improvements(?)
+        ratingComboBox.getItems().addAll(allRatings);
+
         searchBtn.setOnAction(actionEvent ->{
             movieListView.setItems(filterMovies(searchField.getText().toUpperCase(), genreComboBox.getSelectionModel().getSelectedItem(), allMovies));
             movieListView.refresh();
@@ -75,8 +87,6 @@ public class HomeController implements Initializable {
             deleteBtn.setDisable(true);
             movieListView.setItems(observableMovies);
         });
-
-        //filtering with sorted list does not work
     }
 
     public String sortMovies(ObservableList<Movie> movies) {
