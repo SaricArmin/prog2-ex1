@@ -21,31 +21,27 @@ class HomeControllerTest {
 
     @Test
     void filterMoviesByActionGenre() {
-        ObservableList<Movie> movies = homeController.filterMovies("", Genre.ACTION, homeController.allMovies);
+        ObservableList<Movie> movies = homeController.filterMovies("", Genre.ACTION, 9.0, 1999);
         assertFalse(movies.isEmpty());
         assertEquals(movies.size(), 1); //Wenn man die Daten erweitert wird das hier eventuell fehlschlagen
-        Movie movie = movies.stream().findFirst().orElseThrow();
-        assertEquals(movie.getTitle(), "Lord of the Rings");
-        assertTrue(movie.getGenres().contains(Genre.ACTION));
+        movies.forEach(moviee -> assertTrue(moviee.getGenres().contains(Genre.ACTION)));
     }
 
     @Test
     void filterMoviesByStorySearch() {
-        ObservableList<Movie> movies = homeController.filterMovies("STORY", null, homeController.allMovies);
+        ObservableList<Movie> movies = homeController.filterMovies("STORY", null, 8.7, 2004);
         assertFalse(movies.isEmpty());
         assertEquals(movies.size(), 2); //Wenn man die Daten erweitert wird das hier eventuell fehlschlagen
-        Movie movie = movies.stream().findFirst().orElseThrow();
-        assertTrue(movie.getTitle().contains("story") || movie.getDescription().contains("story"));
+        movies.forEach(movie -> assertTrue(movie.getTitle().contains("story") || movie.getDescription().contains("story")));
     }
 
     @Test
     void filterMoviesByGenreAndSearch() {
-        ObservableList<Movie> movies = homeController.filterMovies("STORY", Genre.WAR, homeController.allMovies);
+        ObservableList<Movie> movies = homeController.filterMovies("STORY", Genre.WAR, 5.4, 2020);
         assertFalse(movies.isEmpty());
         assertEquals(movies.size(), 1); //Wenn man die Daten erweitert wird das hier eventuell fehlschlagen
-        Movie movie = movies.stream().findFirst().orElseThrow();
-        assertEquals(movie.getTitle(), "Tropic Thunder");
-        assertTrue(movie.getGenres().contains(Genre.WAR));
+        movies.forEach(movie -> assertTrue(movie.getGenres().contains(Genre.WAR)));
+        movies.forEach(movie -> assertTrue(movie.getTitle().contains("story") || movie.getDescription().contains("story")));
     }
 
     @Test
@@ -60,8 +56,9 @@ class HomeControllerTest {
 
     @Test
     void filterMoviesByEmptyGenreAndSearch(){
-        ObservableList<Movie> movies = homeController.filterMovies("", null, homeController.allMovies);
+        ObservableList<Movie> movies = homeController.filterMovies("", null, 3.2, 2023);
         assertFalse(movies.isEmpty());
         assertEquals(movies.size(), 7); //Wenn man die Daten erweitert wird das hier eventuell fehlschlagen
     }
+
 }

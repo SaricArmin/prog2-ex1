@@ -86,17 +86,4 @@ public class Movie {
         return rating;
     }
 
-    public static List<Movie> initializeMovies(){
-        //List<Movie> movies = new ArrayList<>();
-        //prob gonna ditch this code
-//        movies.add(new Movie("Lord of the Rings", "A short mans story to find true love", Arrays.asList(Genre.ACTION, Genre.ADVENTURE)));
-//        movies.add(new Movie("Schindler's List", "MrBeast's inspiration", Arrays.asList(Genre.BIOGRAPHY, Genre.DRAMA)));
-//        movies.add(new Movie("Passengers", "Chris Pratt's visualization of a simp", Arrays.asList(Genre.ROMANCE, Genre.FAMILY, Genre.SCIENCE_FICTION)));
-//        movies.add(new Movie("Tropic Thunder", "A true story based of war heroes", Arrays.asList(Genre.WAR, Genre.FAMILY, Genre.COMEDY)));
-//        movies.add(new Movie("A Million Ways to Die in the West", "Seth MacFarlane really tries to be an actor", Arrays.asList(Genre.WESTERN, Genre.COMEDY)));
-//        movies.add(new Movie("Saw 8: Jigsaw", "Fun for the whole family", Arrays.asList(Genre.ROMANCE, Genre.FAMILY, Genre.DRAMA)));
-//        movies.add(new Movie("(T)Raumschiff Surprise", "Documentation of our future", List.of(Genre.SCIENCE_FICTION)));
-        List <Movie> movies = MovieAPI.fetchMovies();
-        return movies;
-    }
 }

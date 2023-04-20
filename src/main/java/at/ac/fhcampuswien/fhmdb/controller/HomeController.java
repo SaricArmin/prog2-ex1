@@ -2,6 +2,7 @@ package at.ac.fhcampuswien.fhmdb.controller;
 
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
+import at.ac.fhcampuswien.fhmdb.models.MovieAPI;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
@@ -26,23 +27,27 @@ public class HomeController implements Initializable {
     public TextField searchField;
 
     @FXML
-    public JFXListView movieListView;
+    public JFXListView<Movie> movieListView;
 
     @FXML
     public JFXComboBox<Genre> genreComboBox;
 
     @FXML
-    public JFXComboBox yearComboBox;
+    public JFXComboBox<Integer> yearComboBox;
 
     @FXML
-    public JFXComboBox ratingComboBox;
+    public JFXComboBox<Double> ratingComboBox;
 
     @FXML
     public JFXButton sortBtn;
     @FXML
     public JFXButton deleteBtn;
-    public List<Movie> allMovies = Movie.initializeMovies();
-    public List<Genre> allGenres = Arrays.asList(Genre.values());
+    public List<Movie> allMovies;
+    public Set<Genre> allGenres = new HashSet<>();
+    public Set<Double> allRatings = new HashSet<>();
+    public Set<Integer> allReleaseYears = new HashSet<>();
+
+    private final MovieAPI movieAPI = new MovieAPI();
 
     private static final String SORT_ASC = "Sort ↑";
     private static final String SORT_DESC = "Sort ↓";
@@ -50,9 +55,18 @@ public class HomeController implements Initializable {
 
     private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
 
+    private void initializeData() {
+        allMovies = movieAPI.fetchMovies();
+        allMovies.forEach(movie -> {
+            allGenres.addAll(movie.getGenres());
+            allRatings.add(movie.getRating());
+            allReleaseYears.add(movie.getReleaseYear());
+        });
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
+        initializeData();
         observableMovies.addAll(allMovies);         // add dummy data to observable list
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setContentText(getMostPopularActor(observableMovies));
@@ -64,22 +78,21 @@ public class HomeController implements Initializable {
 
         genreComboBox.setPromptText("Filter by Genre");
         genreComboBox.getItems().addAll(allGenres);
+        FXCollections.sort(genreComboBox.getItems(), Comparator.comparing(Genre::name));
 
         yearComboBox.setPromptText("Filter by Release Year");
-        List<Integer> allReleaseYears = new ArrayList<>();
-
-        allReleaseYears.add(1234);
-        //needs improvements(?)
         yearComboBox.getItems().addAll(allReleaseYears);
+        FXCollections.sort(yearComboBox.getItems(), Comparator.comparing(Integer::intValue));
 
         ratingComboBox.setPromptText("Filter by Rating");
-        List<Double> allRatings = new ArrayList<>();
-        allRatings.add(1234.4214);
-        //needs improvements(?)
         ratingComboBox.getItems().addAll(allRatings);
+        FXCollections.sort(ratingComboBox.getItems(), Comparator.comparing(Double::doubleValue));
 
         searchBtn.setOnAction(actionEvent ->{
-            movieListView.setItems(filterMovies(searchField.getText().toUpperCase(), genreComboBox.getSelectionModel().getSelectedItem(), allMovies));
+            movieListView.setItems(filterMovies(searchField.getText().toUpperCase(),
+                    genreComboBox.getSelectionModel().getSelectedItem(),
+                    ratingComboBox.getSelectionModel().getSelectedItem(),
+                    yearComboBox.getSelectionModel().getSelectedItem()));
             movieListView.refresh();
             deleteBtn.setDisable(false);
         });
@@ -93,6 +106,8 @@ public class HomeController implements Initializable {
         deleteBtn.setOnAction(actionEvent -> {
             searchField.clear();
             genreComboBox.getSelectionModel().clearSelection();
+            yearComboBox.getSelectionModel().clearSelection();
+            ratingComboBox.getSelectionModel().clearSelection();
             deleteBtn.setDisable(true);
             movieListView.setItems(observableMovies);
         });
@@ -112,13 +127,19 @@ public class HomeController implements Initializable {
         }
     }
 
-    public ObservableList<Movie> filterMovies(String search, Genre genre, List<Movie> allMovies) {
+    public ObservableList<Movie> filterMovies(String search, Genre genre, Double rating, Integer releaseYear) {
         ObservableList<Movie> movies = FXCollections.observableArrayList();
+        Map<String, String> parameters = new HashMap<>();
+        if (search != null && !search.isEmpty())
+            parameters.put("query", search);
+        if (genre != null)
+            parameters.put("genre", genre.name());
+        if (rating != null)
+            parameters.put("ratingFrom", rating.toString());
+        if (releaseYear != null)
+            parameters.put("releaseYear", releaseYear.toString());
 
-        movies.addAll(allMovies.stream()
-                .filter(movie -> movie.getTitle().toUpperCase().contains(search) || movie.getDescription().toUpperCase().contains(search))
-                .filter(movie -> (genre == null || movie.getGenres().contains(genre)))
-                .toList());
+        movies.addAll(movieAPI.searchMovies(parameters));
         return movies;
     }
 
@@ -147,12 +168,8 @@ public class HomeController implements Initializable {
     }
 
     public static List<Movie> getMoviesBetweenYears(List<Movie> movies, int startYear, int endYear) {
-        List<Movie> result = new ArrayList<>();
-        for (Movie movie : movies) {
-            if (movie.getReleaseYear() >= startYear && movie.getReleaseYear() <= endYear) {
-                result.add(movie);
-            }
-        }
-        return result;
+        return movies.stream()
+                .filter(movie -> movie.getReleaseYear() >= startYear && movie.getReleaseYear() <= endYear)
+                .collect(Collectors.toList());
     }
 }
