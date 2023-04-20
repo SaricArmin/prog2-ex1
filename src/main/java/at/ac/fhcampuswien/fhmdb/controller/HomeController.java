@@ -132,4 +132,27 @@ public class HomeController implements Initializable {
                 .map(Map.Entry::getKey)
                 .orElse("");
     }
+
+    public static int getLongestMovieTitle(List<Movie> movies) {
+        Optional<Movie> longestTitleMovie = movies.stream()
+            .max(Comparator.comparing(movie -> movie.getTitle().length()));
+
+        return longestTitleMovie.map(movie -> movie.getTitle().length()).orElse(0);
+    }
+
+    public static long countMoviesFrom(List<Movie> movies, String director) {
+        return movies.stream()
+            .filter(movie -> movie.getDirectors().contains(director))
+            .count();
+    }
+
+    public static List<Movie> getMoviesBetweenYears(List<Movie> movies, int startYear, int endYear) {
+        List<Movie> result = new ArrayList<>();
+        for (Movie movie : movies) {
+            if (movie.getReleaseYear() >= startYear && movie.getReleaseYear() <= endYear) {
+                result.add(movie);
+            }
+        }
+        return result;
+    }
 }
