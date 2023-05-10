@@ -1,6 +1,8 @@
-package at.ac.fhcampuswien.fhmdb.ui;
+package at.ac.fhcampuswien.fhmdb.business.controller;
 
-import at.ac.fhcampuswien.fhmdb.models.Movie;
+import at.ac.fhcampuswien.fhmdb.business.models.Movie;
+import com.jfoenix.controls.JFXButton;
+import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -16,6 +18,16 @@ public class MovieCell extends ListCell<Movie> {
 
     private final Label rating = new Label();
     private final VBox layout = new VBox(title, detail, genre, rating);
+
+//    @FXML
+//    public JFXButton watchlistBtn;
+
+    public MovieCell(ClickEventHandler addToWatchlistClicked) {
+        super();
+//        watchlistBtn.setOnMouseClicked(mouseEvent -> {
+//            addToWatchlistClicked.onClick(getItem());
+//        });
+    }
 
     @Override
     protected void updateItem(Movie movie, boolean empty) {

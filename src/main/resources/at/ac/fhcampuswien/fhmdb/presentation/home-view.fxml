@@ -11,7 +11,7 @@
 <?import javafx.scene.text.Font?>
 
 <VBox prefHeight="331.0" prefWidth="570.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="at.ac.fhcampuswien.fhmdb.controller.HomeController">
+      fx:controller="at.ac.fhcampuswien.fhmdb.business.controller.HomeController">
     <HBox alignment="CENTER_LEFT" prefHeight="42.0" prefWidth="347.0" spacing="20.0"
           style="-fx-background-color: black;">
         <padding>

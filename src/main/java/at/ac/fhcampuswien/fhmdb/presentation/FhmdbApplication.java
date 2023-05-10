@@ -1,4 +1,4 @@
-package at.ac.fhcampuswien.fhmdb;
+package at.ac.fhcampuswien.fhmdb.presentation;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

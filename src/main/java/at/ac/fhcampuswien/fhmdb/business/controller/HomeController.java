@@ -1,9 +1,8 @@
-package at.ac.fhcampuswien.fhmdb.controller;
+package at.ac.fhcampuswien.fhmdb.business.controller;
 
-import at.ac.fhcampuswien.fhmdb.models.Genre;
-import at.ac.fhcampuswien.fhmdb.models.Movie;
-import at.ac.fhcampuswien.fhmdb.models.MovieAPI;
-import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
+import at.ac.fhcampuswien.fhmdb.business.models.Genre;
+import at.ac.fhcampuswien.fhmdb.business.models.Movie;
+import at.ac.fhcampuswien.fhmdb.business.models.MovieAPI;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
@@ -15,7 +14,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 
 import java.net.URL;
-import java.time.Year;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,6 +53,10 @@ public class HomeController implements Initializable {
 
     private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
 
+    private final ClickEventHandler onAddToWatchlistClicked = (clickedItem) -> {
+
+    };
+
     private void initializeData() {
         allMovies = movieAPI.fetchMovies();
         allMovies.forEach(movie -> {
@@ -74,7 +76,7 @@ public class HomeController implements Initializable {
 
         // initialize UI stuff
         movieListView.setItems(observableMovies);   // set data of observable list to list view
-        movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
+        movieListView.setCellFactory(movieListView -> new MovieCell(onAddToWatchlistClicked)); // use custom cell factory to display data
 
         genreComboBox.setPromptText("Filter by Genre");
         genreComboBox.getItems().addAll(allGenres);

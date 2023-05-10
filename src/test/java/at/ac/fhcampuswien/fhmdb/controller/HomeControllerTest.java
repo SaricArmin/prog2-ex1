@@ -1,8 +1,8 @@
 package at.ac.fhcampuswien.fhmdb.controller;
 
-import at.ac.fhcampuswien.fhmdb.controller.HomeController;
-import at.ac.fhcampuswien.fhmdb.models.Genre;
-import at.ac.fhcampuswien.fhmdb.models.Movie;
+import at.ac.fhcampuswien.fhmdb.business.models.Genre;
+import at.ac.fhcampuswien.fhmdb.business.models.Movie;
+import at.ac.fhcampuswien.fhmdb.business.controller.HomeController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.junit.jupiter.api.BeforeEach;

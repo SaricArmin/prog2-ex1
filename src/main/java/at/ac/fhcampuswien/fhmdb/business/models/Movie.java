@@ -1,7 +1,5 @@
-package at.ac.fhcampuswien.fhmdb.models;
+package at.ac.fhcampuswien.fhmdb.business.models;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Movie {
