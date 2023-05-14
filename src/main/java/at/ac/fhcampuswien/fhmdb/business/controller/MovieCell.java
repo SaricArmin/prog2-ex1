@@ -2,8 +2,11 @@ package at.ac.fhcampuswien.fhmdb.business.controller;
 
 import at.ac.fhcampuswien.fhmdb.business.models.Movie;
 import com.jfoenix.controls.JFXButton;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.Background;
@@ -14,19 +17,56 @@ import javafx.scene.paint.Color;
 public class MovieCell extends ListCell<Movie> {
     private final Label title = new Label();
     private final Label detail = new Label();
-    private final Label genre = new Label();
+    private final Label genres = new Label(); //to show genres
+    private final Label rating = new Label(); //to show the rating
 
-    private final Label rating = new Label();
-    private final VBox layout = new VBox(title, detail, genre, rating);
+    private final Button addToWL = createWishlistButton();
+
+    private final VBox layout = new VBox(title, detail, genres, rating, addToWL);
+
+    private ClickEventHandler<Movie> clickHandler;
+
+    HomeController controller;
+
 
 //    @FXML
 //    public JFXButton watchlistBtn;
 
-    public MovieCell(ClickEventHandler addToWatchlistClicked) {
+    public Button createWishlistButton ()
+    {
+        Button addToWatchlist = new Button();
+        addToWatchlist.getStyleClass().add("background-yellow"); //added
+        addToWatchlist.setText("Add to Watchlist");
+
+
+        addToWatchlist.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                // Hier Methode aufufen was passieren soll, wenn der Button geklickt wird
+                //clickHandler.onClick();
+            }
+        });
+
+        return addToWatchlist;
+    }
+
+    // Exercise 3 Business Layer
+    public MovieCell() {
+
+
+    }
+    public MovieCell(ClickEventHandler<Movie> addToWatchlistClicked) {
         super();
-//        watchlistBtn.setOnMouseClicked(mouseEvent -> {
-//            addToWatchlistClicked.onClick(getItem());
-//        });
+        this.clickHandler = addToWatchlistClicked;
+        addToWL.setOnMouseClicked(mouseEvent -> {
+            addToWatchlistClicked.onClick(getItem());
+            if (!HomeController.watchList.isEmpty()) {
+                for (Movie movie: HomeController.watchList) {
+                    if (movie.id.equals(getItem().id)) {
+                        addToWL.setText("Delete from Watchlist");
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -39,7 +79,7 @@ public class MovieCell extends ListCell<Movie> {
         } else {
             this.getStyleClass().add("movie-cell");
             title.setText(movie.getTitle() + " ("+ movie.getReleaseYear() + ")");
-            genre.setText(movie.getGenres().toString().substring(1, movie.getGenres().toString().length() -1));
+            genres.setText(movie.getGenres().toString().substring(1, movie.getGenres().toString().length() -1));
             detail.setText(
                     movie.getDescription() != null
                             ? movie.getDescription()
@@ -50,7 +90,7 @@ public class MovieCell extends ListCell<Movie> {
             // needs overhaul
             // color scheme
             title.getStyleClass().add("text-yellow");
-            genre.getStyleClass().add("text-white");
+            genres.getStyleClass().add("text-white");
             detail.getStyleClass().add("text-white");
             layout.setBackground(new Background(new BackgroundFill(Color.web("#454545"), null, null)));
 

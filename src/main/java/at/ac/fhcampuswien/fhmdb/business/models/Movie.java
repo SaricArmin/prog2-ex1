@@ -5,7 +5,7 @@ import java.util.List;
 public class Movie {
 
     //added variables for movies
-    private String id;
+    public String id;
     private String title;
     private String description;
     private List<Genre> genres;

@@ -8,6 +8,7 @@ import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -50,6 +51,8 @@ public class HomeController implements Initializable {
     private static final String SORT_ASC = "Sort ↑";
     private static final String SORT_DESC = "Sort ↓";
     private boolean sortAsc = false;
+
+    public static List<Movie> watchList = new ArrayList<>();
 
     private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
 
@@ -173,5 +176,8 @@ public class HomeController implements Initializable {
         return movies.stream()
                 .filter(movie -> movie.getReleaseYear() >= startYear && movie.getReleaseYear() <= endYear)
                 .collect(Collectors.toList());
+    }
+
+    public void switchScene(ActionEvent actionEvent) {
     }
 }
