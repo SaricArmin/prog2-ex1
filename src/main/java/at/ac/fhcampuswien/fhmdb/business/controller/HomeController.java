@@ -13,7 +13,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
-
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,6 +40,9 @@ public class HomeController implements Initializable {
     public JFXButton sortBtn;
     @FXML
     public JFXButton deleteBtn;
+
+    @FXML
+    public JFXButton switchSceneBtn;
     public List<Movie> allMovies;
     public Set<Genre> allGenres = new HashSet<>();
     public Set<Double> allRatings = new HashSet<>();
@@ -179,5 +181,17 @@ public class HomeController implements Initializable {
     }
 
     public void switchScene(ActionEvent actionEvent) {
+        if(switchSceneBtn.getText().equals("Switch to Watchlist"))
+        {
+            observableMovies.clear();
+            observableMovies.addAll(watchList); //show all movies from the watchlist
+            switchSceneBtn.setText("Switch to Homepage");
+        }
+        else
+        {
+            observableMovies.clear();
+            observableMovies.addAll(allMovies); //show all movies
+            switchSceneBtn.setText("Switch to Watchlist");
+        }
     }
 }
