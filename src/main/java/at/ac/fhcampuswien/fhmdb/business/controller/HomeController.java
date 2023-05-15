@@ -6,6 +6,7 @@ import at.ac.fhcampuswien.fhmdb.business.models.MovieAPI;
 import at.ac.fhcampuswien.fhmdb.data.WatchlistMovieEntity;
 import at.ac.fhcampuswien.fhmdb.data.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.exceptions.DatabaseException;
+import at.ac.fhcampuswien.fhmdb.exceptions.MovieApiException;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
@@ -154,7 +155,11 @@ public class HomeController implements Initializable {
         if (releaseYear != null)
             parameters.put("releaseYear", releaseYear.toString());
 
-        movies.addAll(movieAPI.searchMovies(parameters));
+        try {
+            movies.addAll(movieAPI.searchMovies(parameters));
+        } catch (Exception e) {
+            showExceptionAlert("while API search", new MovieApiException(e.getMessage()));
+        }
         return movies;
     }
 
@@ -197,10 +202,7 @@ public class HomeController implements Initializable {
             try {
                 movieEntities = watchlistRepository.getAll();
             } catch (SQLException e) {
-                String title = "Error";
-                String headerText = "Error for database";
-                String contentText = "The following error occurred: " + e.getMessage();
-                showExceptionAlert(title, headerText, contentText + e.getMessage(), new DatabaseException(e));
+                showExceptionAlert("while fetching Watchlist in DATABASE", new DatabaseException(e));
             }
 
             ObservableList<Movie> observableMoviesTemp = FXCollections.observableArrayList(
