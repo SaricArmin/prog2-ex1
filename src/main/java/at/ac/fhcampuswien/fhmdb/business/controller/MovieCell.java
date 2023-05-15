@@ -1,18 +1,15 @@
 package at.ac.fhcampuswien.fhmdb.business.controller;
 
+import at.ac.fhcampuswien.fhmdb.data.WatchlistMovieEntity;
+import at.ac.fhcampuswien.fhmdb.data.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.business.models.Movie;
-import com.jfoenix.controls.JFXButton;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.fxml.FXML;
+import at.ac.fhcampuswien.fhmdb.exceptions.DatabaseException;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+
+import java.sql.SQLException;
 
 public class MovieCell extends ListCell<Movie> {
     private final Label title = new Label();
@@ -27,6 +24,8 @@ public class MovieCell extends ListCell<Movie> {
     private ClickEventHandler<Movie> clickHandler;
 
     HomeController controller;
+    WatchlistRepository repository = new WatchlistRepository();
+
 
 
 //    @FXML
@@ -39,12 +38,7 @@ public class MovieCell extends ListCell<Movie> {
         addToWatchlist.setText("Add to Watchlist");
 
 
-        addToWatchlist.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(ActionEvent e) {
-                // Hier Methode aufufen was passieren soll, wenn der Button geklickt wird
-                //clickHandler.onClick();
-            }
-        });
+
 
         return addToWatchlist;
     }
@@ -59,11 +53,25 @@ public class MovieCell extends ListCell<Movie> {
         this.clickHandler = addToWatchlistClicked;
         addToWL.setOnMouseClicked(mouseEvent -> {
             addToWatchlistClicked.onClick(getItem());
-            if (!HomeController.watchList.isEmpty()) {
-                for (Movie movie: HomeController.watchList) {
-                    if (movie.id.equals(getItem().id)) {
-                        addToWL.setText("Delete from Watchlist");
-                    }
+            if (addToWL.getText().equals("Add to Watchlist")){
+                try {
+                    repository.addToWatchlist(getItem());
+                    addToWL.setText("Delete from Watchlist");
+                } catch (SQLException e) {
+                    String title = "Error";
+                    String headerText = "Error while adding item to watchlist";
+                    String contentText = "The following error occurred while adding the item to watchlist:";
+                    showExceptionAlert(title, headerText, contentText, new DatabaseException(headerText, e));
+                }
+            } else if (addToWL.getText().equals("Delete from Watchlist")) {
+                try {
+                    repository.removeFromWatchlist(getItem());
+                    addToWL.setText("Add to Watchlist");
+                } catch (SQLException e) {
+                    String title = "Error";
+                    String headerText = "Error while removing item from watchlist";
+                    String contentText = "The following error occurred while removing the item from watchlist:";
+                    showExceptionAlert(title, headerText, contentText, new DatabaseException(headerText, e));
                 }
             }
         });
@@ -86,7 +94,7 @@ public class MovieCell extends ListCell<Movie> {
                             : "No description available"
             );
 
-            rating.setText("Rating: " + String.valueOf(movie.getRating()));
+            rating.setText("Rating: " + movie.getRating());
             // needs overhaul
             // color scheme
             title.getStyleClass().add("text-yellow");
@@ -103,5 +111,34 @@ public class MovieCell extends ListCell<Movie> {
             layout.alignmentProperty().set(javafx.geometry.Pos.CENTER_LEFT);
             setGraphic(layout);
         }
+    }
+
+    public static void showExceptionAlert(String title, String headerText, String contentText, Exception ex) {
+        // Create a new alert  with the given error
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(contentText);
+
+        Label label = new Label("Exception stacktrace:");
+        TextArea textArea = new TextArea(ex.getMessage());
+        textArea.setEditable(false);
+        textArea.setWrapText(true);
+
+        textArea.setMaxWidth(Double.MAX_VALUE);
+        textArea.setMaxHeight(Double.MAX_VALUE);
+        GridPane.setVgrow(textArea, Priority.ALWAYS);
+        GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+        GridPane expContent = new GridPane();
+        expContent.setMaxWidth(Double.MAX_VALUE);
+        expContent.add(label, 0, 0);
+        expContent.add(textArea, 0, 1);
+
+        // set the additional info to the Alert dialog
+        alert.getDialogPane().setExpandableContent(expContent);
+
+        //stays open until client closes it
+        alert.showAndWait();
     }
 }

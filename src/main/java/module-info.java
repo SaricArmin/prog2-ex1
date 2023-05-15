@@ -15,8 +15,10 @@ module at.ac.fhcampuswien.fhmdb {
     exports at.ac.fhcampuswien.fhmdb.presentation;
     exports at.ac.fhcampuswien.fhmdb.business.models;
     exports at.ac.fhcampuswien.fhmdb.business.controller;
+    exports at.ac.fhcampuswien.fhmdb.data;
     opens at.ac.fhcampuswien.fhmdb.business.controller to javafx.fxml;
     opens at.ac.fhcampuswien.fhmdb.business.models to com.fasterxml.jackson.databind;
     opens at.ac.fhcampuswien.fhmdb.presentation to javafx.fxml;
+    opens at.ac.fhcampuswien.fhmdb.data to ormlite.jdbc;
 
 }

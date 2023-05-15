@@ -3,6 +3,9 @@ package at.ac.fhcampuswien.fhmdb.business.controller;
 import at.ac.fhcampuswien.fhmdb.business.models.Genre;
 import at.ac.fhcampuswien.fhmdb.business.models.Movie;
 import at.ac.fhcampuswien.fhmdb.business.models.MovieAPI;
+import at.ac.fhcampuswien.fhmdb.data.WatchlistMovieEntity;
+import at.ac.fhcampuswien.fhmdb.data.WatchlistRepository;
+import at.ac.fhcampuswien.fhmdb.exceptions.DatabaseException;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
@@ -13,9 +16,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
+import lombok.SneakyThrows;
+
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static at.ac.fhcampuswien.fhmdb.business.controller.MovieCell.showExceptionAlert;
 
 public class HomeController implements Initializable {
     @FXML
@@ -53,8 +61,9 @@ public class HomeController implements Initializable {
     private static final String SORT_ASC = "Sort ↑";
     private static final String SORT_DESC = "Sort ↓";
     private boolean sortAsc = false;
+    WatchlistRepository watchlistRepository;
 
-    public static List<Movie> watchList = new ArrayList<>();
+    public List<WatchlistMovieEntity> watchList = new ArrayList<>();
 
     private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
 
@@ -74,10 +83,9 @@ public class HomeController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initializeData();
+        watchlistRepository = new WatchlistRepository();
+
         observableMovies.addAll(allMovies);         // add dummy data to observable list
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setContentText(getMostPopularActor(observableMovies));
-        alert.showAndWait();
 
         // initialize UI stuff
         movieListView.setItems(observableMovies);   // set data of observable list to list view
@@ -177,14 +185,29 @@ public class HomeController implements Initializable {
     public static List<Movie> getMoviesBetweenYears(List<Movie> movies, int startYear, int endYear) {
         return movies.stream()
                 .filter(movie -> movie.getReleaseYear() >= startYear && movie.getReleaseYear() <= endYear)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    public void switchScene(ActionEvent actionEvent) {
+    public void switchScene() {
         if(switchSceneBtn.getText().equals("Switch to Watchlist"))
         {
             observableMovies.clear();
-            observableMovies.addAll(watchList); //show all movies from the watchlist
+            List<WatchlistMovieEntity> movieEntities = new ArrayList<>();
+
+            try {
+                movieEntities = watchlistRepository.getAll();
+            } catch (SQLException e) {
+                String title = "Error";
+                String headerText = "Error for database";
+                String contentText = "The following error occurred: " + e.getMessage();
+                showExceptionAlert(title, headerText, contentText + e.getMessage(), new DatabaseException(e));
+            }
+
+            ObservableList<Movie> observableMoviesTemp = FXCollections.observableArrayList(
+                    movieEntities.stream()
+                            .map(WatchlistMovieEntity::createMovie)
+                            .toList());
+            observableMovies.addAll(observableMoviesTemp); //show all movies from the watchlist
             switchSceneBtn.setText("Switch to Homepage");
         }
         else
