@@ -44,13 +44,10 @@ public class Database {
         if (watchlistDao == null) {
             try {
                 createConnectionSource();
-                //createTables();
+                createTables();
                 watchlistDao = DaoManager.createDao(connectionSource, WatchlistMovieEntity.class);
             } catch (SQLException e) {
-                String title = "Error";
-                String headerText = "Error while initializing database";
-                String contentText = "The following error occurred while initializing the database:";
-                showExceptionAlert(title, headerText, contentText, new DatabaseException(e));
+                showExceptionAlert("while initializing database", new DatabaseException(e));
             }
         }
         return watchlistDao;

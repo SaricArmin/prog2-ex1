@@ -58,20 +58,14 @@ public class MovieCell extends ListCell<Movie> {
                     repository.addToWatchlist(getItem());
                     addToWL.setText("Delete from Watchlist");
                 } catch (SQLException e) {
-                    String title = "Error";
-                    String headerText = "Error while adding item to watchlist";
-                    String contentText = "The following error occurred while adding the item to watchlist:";
-                    showExceptionAlert(title, headerText, contentText, new DatabaseException(headerText, e));
+                    showExceptionAlert("while adding item to watchlist", new DatabaseException("while adding item to watchlist", e));
                 }
             } else if (addToWL.getText().equals("Delete from Watchlist")) {
                 try {
                     repository.removeFromWatchlist(getItem());
                     addToWL.setText("Add to Watchlist");
                 } catch (SQLException e) {
-                    String title = "Error";
-                    String headerText = "Error while removing item from watchlist";
-                    String contentText = "The following error occurred while removing the item from watchlist:";
-                    showExceptionAlert(title, headerText, contentText, new DatabaseException(headerText, e));
+                    showExceptionAlert("while removing item from watchlist", new DatabaseException("Error while removing item from watchlist", e));
                 }
             }
         });
@@ -113,12 +107,12 @@ public class MovieCell extends ListCell<Movie> {
         }
     }
 
-    public static void showExceptionAlert(String title, String headerText, String contentText, Exception ex) {
+    public static void showExceptionAlert(String origin, Exception ex) {
         // Create a new alert  with the given error
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(headerText);
-        alert.setContentText(contentText);
+        alert.setTitle("Error");
+        alert.setHeaderText("Error " + origin);
+        alert.setContentText("The following error occurred: " + ex.getMessage());
 
         Label label = new Label("Exception stacktrace:");
         TextArea textArea = new TextArea(ex.getMessage());
