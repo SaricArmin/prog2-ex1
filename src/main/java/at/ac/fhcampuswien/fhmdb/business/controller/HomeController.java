@@ -3,6 +3,8 @@ package at.ac.fhcampuswien.fhmdb.business.controller;
 import at.ac.fhcampuswien.fhmdb.business.models.Genre;
 import at.ac.fhcampuswien.fhmdb.business.models.Movie;
 import at.ac.fhcampuswien.fhmdb.business.models.MovieAPI;
+import at.ac.fhcampuswien.fhmdb.data.Observable;
+import at.ac.fhcampuswien.fhmdb.data.Observer;
 import at.ac.fhcampuswien.fhmdb.data.WatchlistMovieEntity;
 import at.ac.fhcampuswien.fhmdb.data.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.exceptions.DatabaseException;
@@ -26,7 +28,7 @@ import java.util.stream.Collectors;
 
 import static at.ac.fhcampuswien.fhmdb.business.controller.MovieCell.showExceptionAlert;
 
-public class HomeController implements Initializable {
+public class HomeController implements Initializable, Observer {
     @FXML
     public JFXButton searchBtn;
 
@@ -84,10 +86,12 @@ public class HomeController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initializeData();
-        watchlistRepository = new WatchlistRepository();
+        watchlistRepository = watchlistRepository.getInstance();
 
         observableMovies.addAll(allMovies);         // add dummy data to observable list
 
+        watchlistRepository = WatchlistRepository.getInstance();
+        watchlistRepository.addObserver(this);
         // initialize UI stuff
         movieListView.setItems(observableMovies);   // set data of observable list to list view
         movieListView.setCellFactory(movieListView -> new MovieCell(onAddToWatchlistClicked)); // use custom cell factory to display data
@@ -218,5 +222,32 @@ public class HomeController implements Initializable {
             observableMovies.addAll(allMovies); //show all movies
             switchSceneBtn.setText("Switch to Watchlist");
         }
+    }
+
+    @Override
+    public void update(Observable observable, Object arg) {
+        if (observable instanceof WatchlistRepository)
+            if (arg instanceof Movie)
+            {
+                Movie movie = (Movie) arg;
+                showFailOrSuccessAlert(movie);
+            }
+    }
+
+    public void showFailOrSuccessAlert(Movie movie)
+    {
+        String msg;
+        if (observableMovies.contains(movie))
+        {
+            msg = "Movie already in watchlist";
+        }
+        else  {
+            msg = "Movie successfully added to watchlist";
+        }
+        Alert a = new Alert(Alert.AlertType.INFORMATION);
+        a.setTitle("Watchlist");
+        a.setHeaderText(null);
+        a.setContentText(msg);
+        a.show();
     }
 }
