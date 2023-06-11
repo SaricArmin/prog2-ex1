@@ -16,7 +16,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URL;
@@ -56,15 +55,17 @@ public class HomeController implements Initializable, Observer {
     public Set<Genre> allGenres = new HashSet<>();
     public Set<Double> allRatings = new HashSet<>();
     public Set<Integer> allReleaseYears = new HashSet<>();
+    public SortState sortState;
 
     private final MovieAPI movieAPI = new MovieAPI();
-    public SortState sortState;
     WatchlistRepository watchlistRepository = WatchlistRepository.getInstance();
     private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
 
-    private final ClickEventHandler onAddToWatchlistClicked = (clickedItem) -> {
+    private final ClickEventHandler<Movie> onAddToWatchlistClicked = (clickedItem) -> {
 
     };
+    private static final String MOVIE = "Movie '";
+
 
     private void initializeData() {
         sortState = new SortAscState(this);
@@ -87,7 +88,7 @@ public class HomeController implements Initializable, Observer {
         watchlistRepository.addObserver(this);
         // initialize UI stuff
         movieListView.setItems(observableMovies);   // set data of observable list to list view
-        movieListView.setCellFactory(movieListView -> new MovieCell(onAddToWatchlistClicked)); // use custom cell factory to display data
+        movieListView.setCellFactory(listView -> new MovieCell(onAddToWatchlistClicked)); // use custom cell factory to display data
 
         genreComboBox.setPromptText("Filter by Genre");
         genreComboBox.getItems().addAll(allGenres);
@@ -221,12 +222,12 @@ public class HomeController implements Initializable, Observer {
 
         if (success) {
             if (adding) {
-                a.setContentText("Movie '" + movie.getTitle() + "' successfully added to watchlist!");
+                a.setContentText(MOVIE + movie.getTitle() + "' successfully added to watchlist!");
             } else {
-                a.setContentText("Movie '" + movie.getTitle() + "' successfully removed from watchlist!");
+                a.setContentText(MOVIE + movie.getTitle() + "' successfully removed from watchlist!");
             }
         } else {
-            a.setContentText("Movie '" + movie.getTitle() + "' already exists in watchlist!");
+            a.setContentText(MOVIE + movie.getTitle() + "' already exists in watchlist!");
         }
 
         a.show();

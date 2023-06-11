@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
 import java.sql.SQLException;
 
@@ -17,26 +18,17 @@ public class MovieCell extends ListCell<Movie> {
     private final Label detail = new Label();
     private final Label genres = new Label(); //to show genres
     private final Label rating = new Label(); //to show the rating
-
     private final Button addToWL = createWishlistButton();
-
     private final VBox layout = new VBox(title, detail, genres, rating, addToWL);
-
-    private ClickEventHandler<Movie> clickHandler;
-
+    private static final String ADD_TO_WATCHLIST = "Add to Watchlist";
+    private static final String DELETE_FROM_WATCHLIST = "Delete from Watchlist";
     HomeController controller = new HomeController();
-    WatchlistRepository repository = WatchlistRepository.getInstance();
-
-
-
-//    @FXML
-//    public JFXButton watchlistBtn;
 
     public Button createWishlistButton ()
     {
         Button addToWatchlist = new Button();
         addToWatchlist.getStyleClass().add("background-yellow"); //added
-        addToWatchlist.setText("Add to Watchlist");
+        addToWatchlist.setText(ADD_TO_WATCHLIST);
         return addToWatchlist;
     }
 
@@ -45,13 +37,12 @@ public class MovieCell extends ListCell<Movie> {
     }
     public MovieCell(ClickEventHandler<Movie> addToWatchlistClicked) {
         super();
-        this.clickHandler = addToWatchlistClicked;
         addToWL.setOnMouseClicked(mouseEvent -> {
             addToWatchlistClicked.onClick(getItem());
-            if (addToWL.getText().equals("Add to Watchlist")) {
+            if (addToWL.getText().equals(ADD_TO_WATCHLIST)) {
                 controller.addMovie(getItem());
                 updateItem(getItem(), false);
-            } else if (addToWL.getText().equals("Delete from Watchlist")) {
+            } else if (addToWL.getText().equals(DELETE_FROM_WATCHLIST)) {
                 controller.removeMovie(getItem());
                 updateItem(getItem(), false);
             }
@@ -84,7 +75,7 @@ public class MovieCell extends ListCell<Movie> {
             layout.setBackground(new Background(new BackgroundFill(Color.web("#454545"), null, null)));
 
             // layout
-            title.fontProperty().set(title.getFont().font(20));
+            title.fontProperty().set(Font.font(20));
             detail.setMaxWidth(this.getScene().getWidth() - 30);
             detail.setWrapText(true);
             layout.setPadding(new Insets(10));
@@ -94,9 +85,9 @@ public class MovieCell extends ListCell<Movie> {
         }
 
         if (controller.getWatchList().contains(movie)) {
-            addToWL.setText("Delete from Watchlist");
+            addToWL.setText(DELETE_FROM_WATCHLIST);
         } else {
-            addToWL.setText("Add to Watchlist");
+            addToWL.setText(ADD_TO_WATCHLIST);
         }
     }
 
