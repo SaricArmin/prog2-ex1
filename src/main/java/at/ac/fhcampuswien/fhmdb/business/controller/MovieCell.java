@@ -1,17 +1,11 @@
 package at.ac.fhcampuswien.fhmdb.business.controller;
 
-import at.ac.fhcampuswien.fhmdb.data.WatchlistMovieEntity;
-import at.ac.fhcampuswien.fhmdb.data.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.business.models.Movie;
-import at.ac.fhcampuswien.fhmdb.exceptions.DatabaseException;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-
-import java.sql.SQLException;
 
 public class MovieCell extends ListCell<Movie> {
     private final Label title = new Label();
