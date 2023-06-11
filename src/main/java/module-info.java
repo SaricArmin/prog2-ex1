@@ -11,6 +11,7 @@ module at.ac.fhcampuswien.fhmdb {
     //requires ormlite.core;      //java: the unnamed module reads package com.j256.ormlite.db from both ormlite.core and ormlite.jdbc
     requires lombok;
     requires java.sql;
+    requires annotations;
 
     exports at.ac.fhcampuswien.fhmdb.presentation;
     exports at.ac.fhcampuswien.fhmdb.business.models;

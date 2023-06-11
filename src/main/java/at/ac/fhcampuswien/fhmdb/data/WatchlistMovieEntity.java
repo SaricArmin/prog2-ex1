@@ -53,7 +53,7 @@ public class WatchlistMovieEntity {
     public Movie createMovie(){
         List<Genre> genres = Arrays.stream(this.genres.split(","))
                 .map(Genre::valueOf)
-                .collect(Collectors.toList());
+                .toList();
         return new Movie(apiId,title,description,genres,releaseYear,imgUrl,lengthInMinutes,rating);
     }
 }

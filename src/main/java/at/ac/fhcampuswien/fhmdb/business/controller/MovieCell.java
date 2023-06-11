@@ -4,6 +4,7 @@ import at.ac.fhcampuswien.fhmdb.data.WatchlistMovieEntity;
 import at.ac.fhcampuswien.fhmdb.data.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.business.models.Movie;
 import at.ac.fhcampuswien.fhmdb.exceptions.DatabaseException;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -23,7 +24,7 @@ public class MovieCell extends ListCell<Movie> {
 
     private ClickEventHandler<Movie> clickHandler;
 
-    HomeController controller;
+    HomeController controller = new HomeController();
     WatchlistRepository repository = WatchlistRepository.getInstance();
 
 
@@ -48,21 +49,11 @@ public class MovieCell extends ListCell<Movie> {
         addToWL.setOnMouseClicked(mouseEvent -> {
             addToWatchlistClicked.onClick(getItem());
             if (addToWL.getText().equals("Add to Watchlist")) {
-                try {
-                    repository.addToWatchlist(getItem());
-                    addToWL.setText("Delete from Watchlist");
-                    controller.showFailOrSuccessAlert(getItem());
-                } catch (SQLException e) {
-                    showExceptionAlert("while adding item from watchlist", new DatabaseException("Error while adding item from watchlist", e));
-                }
+                controller.addMovie(getItem());
+                updateItem(getItem(), false);
             } else if (addToWL.getText().equals("Delete from Watchlist")) {
-                try {
-                    repository.removeFromWatchlist(getItem());
-                    //addToWL.setText("Add to Watchlist");
-                    controller.showFailOrSuccessAlert(getItem());
-                } catch (SQLException e) {
-                    showExceptionAlert("while removing item from watchlist", new DatabaseException("Error while removing item from watchlist", e));
-                }
+                controller.removeMovie(getItem());
+                updateItem(getItem(), false);
             }
         });
     }
@@ -101,6 +92,12 @@ public class MovieCell extends ListCell<Movie> {
             layout.alignmentProperty().set(javafx.geometry.Pos.CENTER_LEFT);
             setGraphic(layout);
         }
+
+        if (controller.getWatchList().contains(movie)) {
+            addToWL.setText("Delete from Watchlist");
+        } else {
+            addToWL.setText("Add to Watchlist");
+        }
     }
 
     public static void showExceptionAlert(String origin, Exception ex) {
@@ -129,6 +126,6 @@ public class MovieCell extends ListCell<Movie> {
         alert.getDialogPane().setExpandableContent(expContent);
 
         //stays open until client closes it
-        alert.showAndWait();
+        alert.show();
     }
 }

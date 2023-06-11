@@ -25,7 +25,7 @@ public class Database {
         try {
             connectionSource = new JdbcConnectionSource(DATABASE_URL,DATABASE_USER,DATABASE_PASSWORD);
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //ToDo
         }
     }
 

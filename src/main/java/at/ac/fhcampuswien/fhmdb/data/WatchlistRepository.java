@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.fhmdb.data;
 
+import at.ac.fhcampuswien.fhmdb.business.controller.WatchlistChangeEvent;
 import at.ac.fhcampuswien.fhmdb.business.models.Movie;
 import com.j256.ormlite.dao.Dao;
 
@@ -11,6 +12,8 @@ public class WatchlistRepository implements Observable{
     private static WatchlistRepository _instance;
     private Dao<WatchlistMovieEntity, Long> watchlistDao;
     private List<Observer> observers;
+
+    private boolean addingToWatchlist;
 
     private WatchlistRepository()
     {
@@ -27,16 +30,23 @@ public class WatchlistRepository implements Observable{
 
     public void removeFromWatchlist(Movie movie) throws SQLException {
         watchlistDao.delete(watchlistDao.queryForEq("apiId",movie.getId()));
+        addingToWatchlist = false;
+        notifyObserver(new WatchlistChangeEvent(movie, true));
     }
 
     public List<WatchlistMovieEntity> getAll() throws SQLException {
         return watchlistDao.queryForAll();
     }
 
-    public void addToWatchlist(Movie movie) throws SQLException {
+    public boolean addToWatchlist(Movie movie) throws SQLException {
         if (watchlistDao.queryForMatching(movieToWatchlist(movie)).isEmpty()){
             watchlistDao.create(movieToWatchlist(movie));
+            addingToWatchlist = true;
+            notifyObserver(new WatchlistChangeEvent(movie, true));
+            return true;
         }
+        notifyObserver(new WatchlistChangeEvent(movie, false));
+        return false;
     }
 
     private WatchlistMovieEntity movieToWatchlist(Movie movie){
@@ -54,9 +64,13 @@ public class WatchlistRepository implements Observable{
     }
 
     @Override
-    public void notifyObserver(Object arg) {
+    public void notifyObserver(WatchlistChangeEvent event) {
         for (Observer observer : observers) {
-            observer.update(this, arg);
+            observer.update(this, event);
         }
+    }
+
+    public boolean isAddingToWatchlist() {
+        return addingToWatchlist;
     }
 }

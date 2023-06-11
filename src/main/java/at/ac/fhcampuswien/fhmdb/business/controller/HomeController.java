@@ -16,6 +16,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
+import lombok.SneakyThrows;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -57,10 +59,7 @@ public class HomeController implements Initializable, Observer {
 
     private final MovieAPI movieAPI = new MovieAPI();
     public SortState sortState;
-    WatchlistRepository watchlistRepository;
-
-    public List<WatchlistMovieEntity> watchList = new ArrayList<>();
-
+    WatchlistRepository watchlistRepository = WatchlistRepository.getInstance();
     private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
 
     private final ClickEventHandler onAddToWatchlistClicked = (clickedItem) -> {
@@ -80,7 +79,7 @@ public class HomeController implements Initializable, Observer {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initializeData();
-        watchlistRepository = watchlistRepository.getInstance();
+        watchlistRepository = WatchlistRepository.getInstance();
 
         observableMovies.addAll(allMovies);         // add dummy data to observable list
 
@@ -181,19 +180,7 @@ public class HomeController implements Initializable, Observer {
         if(switchSceneBtn.getText().equals("Switch to Watchlist"))
         {
             observableMovies.clear();
-            List<WatchlistMovieEntity> movieEntities = new ArrayList<>();
-
-            try {
-                movieEntities = watchlistRepository.getAll();
-            } catch (SQLException e) {
-                showExceptionAlert("while fetching Watchlist in DATABASE", new DatabaseException(e));
-            }
-
-            ObservableList<Movie> observableMoviesTemp = FXCollections.observableArrayList(
-                    movieEntities.stream()
-                            .map(WatchlistMovieEntity::createMovie)
-                            .toList());
-            observableMovies.addAll(observableMoviesTemp); //show all movies from the watchlist
+            observableMovies.addAll(getWatchList()); //show all movies from the watchlist
             switchSceneBtn.setText("Switch to Homepage");
         }
         else
@@ -204,31 +191,61 @@ public class HomeController implements Initializable, Observer {
         }
     }
 
-    @Override
-    public void update(Observable observable, Object arg) {
-        if (observable instanceof WatchlistRepository)
-            if (arg instanceof Movie)
-            {
-                Movie movie = (Movie) arg;
-                showFailOrSuccessAlert(movie);
-            }
+    @NotNull
+    public ObservableList<Movie> getWatchList() {
+        List<WatchlistMovieEntity> watchList = new ArrayList<>();
+
+        try {
+            watchList = watchlistRepository.getAll();
+        } catch (SQLException e) {
+            showExceptionAlert("while fetching Watchlist in DATABASE", new DatabaseException(e));
+        }
+
+        return FXCollections.observableArrayList(
+                watchList.stream()
+                        .map(WatchlistMovieEntity::createMovie)
+                        .toList());
     }
 
-    public void showFailOrSuccessAlert(Movie movie)
-    {
-        String msg;
-        if (observableMovies.contains(movie))
-        {
-            msg = "Movie already in watchlist";
+    @Override
+    public void update(Observable observable, WatchlistChangeEvent event) {
+        if (observable instanceof WatchlistRepository) {
+            Movie movie = event.getMovie();
+            showFailOrSuccessAlert(movie, event.isSuccess(), watchlistRepository.isAddingToWatchlist());
         }
-        else  {
-            msg = "Movie successfully added to watchlist";
-        }
+    }
+    private void showFailOrSuccessAlert(Movie movie, boolean success, boolean adding) {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setTitle("Watchlist");
+        a.setTitle(success ? "Success" : "Failure");
         a.setHeaderText(null);
-        a.setContentText(msg);
+
+        if (success) {
+            if (adding) {
+                a.setContentText("Movie '" + movie.getTitle() + "' successfully added to watchlist!");
+            } else {
+                a.setContentText("Movie '" + movie.getTitle() + "' successfully removed from watchlist!");
+            }
+        } else {
+            a.setContentText("Movie '" + movie.getTitle() + "' already exists in watchlist!");
+        }
+
         a.show();
+    }
+
+    public void addMovie(Movie movie) {
+        try {
+            watchlistRepository.addToWatchlist(movie);
+        } catch (SQLException e) {
+            showExceptionAlert("while adding item from watchlist", new DatabaseException("Error while adding item from watchlist", e));
+        }
+    }
+
+    public void removeMovie(Movie movie) {
+        try {
+            watchlistRepository.removeFromWatchlist(movie);
+        } catch (SQLException e) {
+            showExceptionAlert("while removing item from watchlist", new DatabaseException("Error while removing item from watchlist", e));
+        }
     }
 
     public void changeSortState(SortState sortState) {
