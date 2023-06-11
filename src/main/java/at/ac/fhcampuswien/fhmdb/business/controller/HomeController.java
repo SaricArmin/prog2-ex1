@@ -1,8 +1,8 @@
 package at.ac.fhcampuswien.fhmdb.business.controller;
 
-import at.ac.fhcampuswien.fhmdb.business.models.Genre;
-import at.ac.fhcampuswien.fhmdb.business.models.Movie;
-import at.ac.fhcampuswien.fhmdb.business.models.MovieAPI;
+import at.ac.fhcampuswien.fhmdb.business.models.*;
+import at.ac.fhcampuswien.fhmdb.data.Observable;
+import at.ac.fhcampuswien.fhmdb.data.Observer;
 import at.ac.fhcampuswien.fhmdb.data.WatchlistMovieEntity;
 import at.ac.fhcampuswien.fhmdb.data.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.exceptions.DatabaseException;
@@ -12,12 +12,10 @@ import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
-import lombok.SneakyThrows;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -26,7 +24,7 @@ import java.util.stream.Collectors;
 
 import static at.ac.fhcampuswien.fhmdb.business.controller.MovieCell.showExceptionAlert;
 
-public class HomeController implements Initializable {
+public class HomeController implements Initializable, Observer {
     @FXML
     public JFXButton searchBtn;
 
@@ -58,10 +56,7 @@ public class HomeController implements Initializable {
     public Set<Integer> allReleaseYears = new HashSet<>();
 
     private final MovieAPI movieAPI = new MovieAPI();
-
-    private static final String SORT_ASC = "Sort ↑";
-    private static final String SORT_DESC = "Sort ↓";
-    private boolean sortAsc = false;
+    public SortState sortState;
     WatchlistRepository watchlistRepository;
 
     public List<WatchlistMovieEntity> watchList = new ArrayList<>();
@@ -73,6 +68,7 @@ public class HomeController implements Initializable {
     };
 
     private void initializeData() {
+        sortState = new SortAscState(this);
         allMovies = movieAPI.fetchMovies();
         allMovies.forEach(movie -> {
             allGenres.addAll(movie.getGenres());
@@ -84,10 +80,12 @@ public class HomeController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initializeData();
-        watchlistRepository = new WatchlistRepository();
+        watchlistRepository = watchlistRepository.getInstance();
 
         observableMovies.addAll(allMovies);         // add dummy data to observable list
 
+        watchlistRepository = WatchlistRepository.getInstance();
+        watchlistRepository.addObserver(this);
         // initialize UI stuff
         movieListView.setItems(observableMovies);   // set data of observable list to list view
         movieListView.setCellFactory(movieListView -> new MovieCell(onAddToWatchlistClicked)); // use custom cell factory to display data
@@ -110,12 +108,12 @@ public class HomeController implements Initializable {
                     ratingComboBox.getSelectionModel().getSelectedItem(),
                     yearComboBox.getSelectionModel().getSelectedItem()));
             movieListView.refresh();
+            sortState.sortMovies(movieListView.getItems());
             deleteBtn.setDisable(false);
         });
 
-        FXCollections.sort(movieListView.getItems(), Comparator.comparing(Movie::getTitle));
         sortBtn.setOnAction(actionEvent -> {
-            sortBtn.setText(sortMovies(movieListView.getItems()));
+            sortBtn.setText(sortState.clickSort(movieListView.getItems()));
         });
 
         deleteBtn.setDisable(true);
@@ -127,20 +125,6 @@ public class HomeController implements Initializable {
             deleteBtn.setDisable(true);
             movieListView.setItems(observableMovies);
         });
-    }
-
-    public String sortMovies(ObservableList<Movie> movies) {
-        if(sortAsc) {
-            // Sort observableMovies in ascending order by title
-            FXCollections.sort(movies, Comparator.comparing(Movie::getTitle));
-            sortAsc = false;
-            return SORT_DESC;
-        } else {
-            // Sort observableMovies in descending order by title
-            FXCollections.sort(movies, Comparator.comparing(Movie::getTitle).reversed());
-            sortAsc = true;
-            return SORT_ASC;
-        }
     }
 
     public ObservableList<Movie> filterMovies(String search, Genre genre, Double rating, Integer releaseYear) {
@@ -218,5 +202,36 @@ public class HomeController implements Initializable {
             observableMovies.addAll(allMovies); //show all movies
             switchSceneBtn.setText("Switch to Watchlist");
         }
+    }
+
+    @Override
+    public void update(Observable observable, Object arg) {
+        if (observable instanceof WatchlistRepository)
+            if (arg instanceof Movie)
+            {
+                Movie movie = (Movie) arg;
+                showFailOrSuccessAlert(movie);
+            }
+    }
+
+    public void showFailOrSuccessAlert(Movie movie)
+    {
+        String msg;
+        if (observableMovies.contains(movie))
+        {
+            msg = "Movie already in watchlist";
+        }
+        else  {
+            msg = "Movie successfully added to watchlist";
+        }
+        Alert a = new Alert(Alert.AlertType.INFORMATION);
+        a.setTitle("Watchlist");
+        a.setHeaderText(null);
+        a.setContentText(msg);
+        a.show();
+    }
+
+    public void changeSortState(SortState sortState) {
+        this.sortState = sortState;
     }
 }

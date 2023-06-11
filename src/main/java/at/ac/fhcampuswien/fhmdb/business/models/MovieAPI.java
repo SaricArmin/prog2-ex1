@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.fhmdb.business.models;
 
+import at.ac.fhcampuswien.fhmdb.data.MovieAPIRequestBuilder;
 import okhttp3.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,16 +12,20 @@ import java.util.Map;
 
 public class MovieAPI {
     // mainURL of api
-    static String mainURL = "https://prog2.fh-campuswien.ac.at";
+    static String url = "https://prog2.fh-campuswien.ac.at/movies";
 
+    //String testurl = new MovieAPIRequestBuilder(url + "/" + id).build(); //vl falsche klasse nicht sicher wo sein sollte
+    /*String asdf = new MovieAPIRequestBuilder(url).query("suche")
+            .genre("ACTION")
+            .releaseYear("2012")
+            .ratingFrom("8.3")
+            .build();*/ //braucht testcases
     public List<Movie> fetchMovies() {
-        String url = mainURL + "/movies";
 
         return getMovies(url);
     }
 
     public List<Movie> searchMovies(Map<String, String> parameters) {
-        String url = mainURL + "/movies";
         if (parameters != null) {
             for (Map.Entry<String, String> entry : parameters.entrySet()) {
                 if (!url.contains("?"))

@@ -24,7 +24,7 @@ public class MovieCell extends ListCell<Movie> {
     private ClickEventHandler<Movie> clickHandler;
 
     HomeController controller;
-    WatchlistRepository repository = new WatchlistRepository();
+    WatchlistRepository repository = WatchlistRepository.getInstance();
 
 
 
@@ -36,34 +36,30 @@ public class MovieCell extends ListCell<Movie> {
         Button addToWatchlist = new Button();
         addToWatchlist.getStyleClass().add("background-yellow"); //added
         addToWatchlist.setText("Add to Watchlist");
-
-
-
-
         return addToWatchlist;
     }
 
     // Exercise 3 Business Layer
     public MovieCell() {
-
-
     }
     public MovieCell(ClickEventHandler<Movie> addToWatchlistClicked) {
         super();
         this.clickHandler = addToWatchlistClicked;
         addToWL.setOnMouseClicked(mouseEvent -> {
             addToWatchlistClicked.onClick(getItem());
-            if (addToWL.getText().equals("Add to Watchlist")){
+            if (addToWL.getText().equals("Add to Watchlist")) {
                 try {
                     repository.addToWatchlist(getItem());
                     addToWL.setText("Delete from Watchlist");
+                    controller.showFailOrSuccessAlert(getItem());
                 } catch (SQLException e) {
-                    showExceptionAlert("while adding item to watchlist", new DatabaseException("while adding item to watchlist", e));
+                    showExceptionAlert("while adding item from watchlist", new DatabaseException("Error while adding item from watchlist", e));
                 }
             } else if (addToWL.getText().equals("Delete from Watchlist")) {
                 try {
                     repository.removeFromWatchlist(getItem());
-                    addToWL.setText("Add to Watchlist");
+                    //addToWL.setText("Add to Watchlist");
+                    controller.showFailOrSuccessAlert(getItem());
                 } catch (SQLException e) {
                     showExceptionAlert("while removing item from watchlist", new DatabaseException("Error while removing item from watchlist", e));
                 }

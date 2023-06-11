@@ -44,7 +44,7 @@ public class Database {
         if (watchlistDao == null) {
             try {
                 createConnectionSource();
-                createTables();
+                //createTables();
                 watchlistDao = DaoManager.createDao(connectionSource, WatchlistMovieEntity.class);
             } catch (SQLException e) {
                 showExceptionAlert("while initializing database", new DatabaseException(e));
