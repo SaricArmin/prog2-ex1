@@ -3,20 +3,27 @@ package at.ac.fhcampuswien.fhmdb.controller;
 import at.ac.fhcampuswien.fhmdb.business.models.Genre;
 import at.ac.fhcampuswien.fhmdb.business.models.Movie;
 import at.ac.fhcampuswien.fhmdb.business.controller.HomeController;
+import at.ac.fhcampuswien.fhmdb.business.models.MovieAPI;
 import at.ac.fhcampuswien.fhmdb.business.models.SortAscState;
+import at.ac.fhcampuswien.fhmdb.data.WatchlistRepository;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import at.ac.fhcampuswien.fhmdb.data.MovieAPIRequestBuilder;
+import at.ac.fhcampuswien.fhmdb.presentation.MyFactory;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class HomeControllerTest {
 
     private HomeController homeController;
+    private WatchlistRepository watchlistRepository;
 
     @BeforeEach
     void setUp() {
+
         homeController = new HomeController();
     }
 
@@ -77,6 +84,73 @@ class HomeControllerTest {
         movies.add(movie2);
         movies.add(movie3);
         return movies;
+    }
+
+    @Test
+    //singleton
+    void testWatchListRepositorySingleton()
+    {
+        WatchlistRepository instance1 = WatchlistRepository.getInstance();
+        WatchlistRepository instance2 = WatchlistRepository.getInstance();
+        assertEquals(instance1, instance2);
+
+    }
+
+    @Test
+    void testBuilderPattern()
+    {
+        String baseUrl = "https://prog2.fh-campuswien.ac.at/movies";
+        String expectedUrl = baseUrl + "?query=action&genre=sci-fi&releaseYear=2021&ratingFrom=8.0";
+
+        MovieAPIRequestBuilder builder = new MovieAPIRequestBuilder(baseUrl);
+        String actualUrl = builder
+                .query("action")
+                .genre("sci-fi")
+                .releaseYear("2021")
+                .ratingFrom("8.0")
+                .build();
+
+        assertEquals(expectedUrl, actualUrl);
+    }
+/*
+    @Test
+    void testBuildWithId() {
+        String baseUrl = "https://prog2.fh-campuswien.ac.at/movies";
+        String id = "12345";
+
+        MovieAPIRequestBuilder builder = new MovieAPIRequestBuilder(baseUrl)
+                .id(id);
+
+        String expectedUrl = "https://api.example.com/movies?id=12345";
+        String actualUrl = builder.build();
+
+        assertEquals(expectedUrl, actualUrl);
+    }*/
+
+    @Test
+    void testBuilderPattern2()
+    {
+        String baseUrl = "https://prog2.fh-campuswien.ac.at/movies";
+        String expectedUrl = baseUrl + "?query=drama&ratingFrom=7.0";
+
+        MovieAPIRequestBuilder builder = new MovieAPIRequestBuilder(baseUrl);
+        String actualUrl = builder
+                .query("drama")
+                .ratingFrom("7.0")
+                .build();
+
+        assertEquals(expectedUrl, actualUrl);
+    }
+    @Test
+    void TestFactoryPattern()
+    {
+        MyFactory factory = MyFactory.getInstance();
+
+        Class<?> controllerClass = HomeController.class;
+        Object controllerInstance = factory.call(controllerClass);
+
+        assertNotNull(controllerInstance);
+        assertEquals(controllerClass, controllerInstance.getClass());
     }
 
 }
