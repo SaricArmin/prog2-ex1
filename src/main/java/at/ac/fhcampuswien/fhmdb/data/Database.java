@@ -25,9 +25,7 @@ public class Database {
         try {
             connectionSource = new JdbcConnectionSource(DATABASE_URL,DATABASE_USER,DATABASE_PASSWORD);
         } catch (SQLException e) {
-            e.printStackTrace(); //ToDo
-            showExceptionAlert("while adding item from watchlist", new DatabaseException("Error while adding item to watchlist", e));
-
+            showExceptionAlert("while creating connection", new DatabaseException("Error wwhile creating connection", e));
         }
     }
 
