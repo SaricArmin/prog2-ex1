@@ -202,7 +202,7 @@ public class HomeController implements Initializable, Observer {
     public void update(Observable observable, WatchlistChangeEvent event) {
         if (observable instanceof WatchlistRepository) {
             Movie movie = event.getMovie();
-            showFailOrSuccessAlert(movie, event.isSuccess(), watchlistRepository.isAddingToWatchlist());
+            showFailOrSuccessAlert(movie, event.isSuccess(), event.isAddingToWatchlist());
         }
     }
     private void showFailOrSuccessAlert(Movie movie, boolean success, boolean adding) {

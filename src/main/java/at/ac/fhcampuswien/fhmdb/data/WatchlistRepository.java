@@ -15,8 +15,6 @@ public class WatchlistRepository implements Observable{
     private Dao<WatchlistMovieEntity, Long> watchlistDao;
     private List<Observer> observers;
 
-    private boolean addingToWatchlist;
-
     private WatchlistRepository()
     {
         this.watchlistDao = Database.getWatchlistMovieDao();
@@ -32,8 +30,7 @@ public class WatchlistRepository implements Observable{
 
     public void removeFromWatchlist(Movie movie) throws SQLException {
         watchlistDao.delete(watchlistDao.queryForEq("apiId",movie.getId()));
-        addingToWatchlist = false;
-        notifyObserver(new WatchlistChangeEvent(movie, true));
+        notifyObserver(new WatchlistChangeEvent(movie, true, false));
     }
 
     public List<WatchlistMovieEntity> getAll() throws SQLException {
@@ -50,10 +47,9 @@ public class WatchlistRepository implements Observable{
 
         if (existingMovies.isEmpty()){
             watchlistDao.create(movieToWatchlist(movie));
-            addingToWatchlist = true;
-            notifyObserver(new WatchlistChangeEvent(movie, true));
+            notifyObserver(new WatchlistChangeEvent(movie, true, true));
         } else {
-            notifyObserver(new WatchlistChangeEvent(movie, false));
+            notifyObserver(new WatchlistChangeEvent(movie, false, true));
         }
     }
 
@@ -76,9 +72,5 @@ public class WatchlistRepository implements Observable{
         for (Observer observer : observers) {
             observer.update(this, event);
         }
-    }
-
-    public boolean isAddingToWatchlist() {
-        return addingToWatchlist;
     }
 }
