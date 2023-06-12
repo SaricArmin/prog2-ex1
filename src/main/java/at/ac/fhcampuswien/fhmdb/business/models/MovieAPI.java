@@ -18,9 +18,9 @@ public class MovieAPI {
 
     public List<Movie> searchMovies(String search, Genre genre, Double rating, Integer releaseYear) {
         String filteredUrl = new MovieAPIRequestBuilder(url).query(search)
-                .genre(genre.name())
-                .ratingFrom(rating.toString())
-                .releaseYear(releaseYear.toString())
+                .genre(genre)
+                .ratingFrom(rating)
+                .releaseYear(releaseYear)
                 .build();
 
         return getMovies(filteredUrl);

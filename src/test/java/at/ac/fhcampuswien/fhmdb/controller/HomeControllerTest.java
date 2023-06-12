@@ -105,9 +105,9 @@ class HomeControllerTest {
         MovieAPIRequestBuilder builder = new MovieAPIRequestBuilder(baseUrl);
         String actualUrl = builder
                 .query("action")
-                .genre("sci-fi")
-                .releaseYear("2021")
-                .ratingFrom("8.0")
+                .genre(Genre.SCIENCE_FICTION)
+                .releaseYear(2021)
+                .ratingFrom(8.0)
                 .build();
 
         assertEquals(expectedUrl, actualUrl);
@@ -136,7 +136,7 @@ class HomeControllerTest {
         MovieAPIRequestBuilder builder = new MovieAPIRequestBuilder(baseUrl);
         String actualUrl = builder
                 .query("drama")
-                .ratingFrom("7.0")
+                .ratingFrom(7.0)
                 .build();
 
         assertEquals(expectedUrl, actualUrl);
