@@ -100,7 +100,7 @@ class HomeControllerTest {
     void testBuilderPattern()
     {
         String baseUrl = "https://prog2.fh-campuswien.ac.at/movies";
-        String expectedUrl = baseUrl + "?query=action&genre=sci-fi&releaseYear=2021&ratingFrom=8.0";
+        String expectedUrl = baseUrl + "?query=action&genre=SCIENCE_FICTION&releaseYear=2021&ratingFrom=8.0";
 
         MovieAPIRequestBuilder builder = new MovieAPIRequestBuilder(baseUrl);
         String actualUrl = builder
