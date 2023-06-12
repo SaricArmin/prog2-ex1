@@ -129,18 +129,8 @@ public class HomeController implements Initializable, Observer {
 
     public ObservableList<Movie> filterMovies(String search, Genre genre, Double rating, Integer releaseYear) {
         ObservableList<Movie> movies = FXCollections.observableArrayList();
-        Map<String, String> parameters = new HashMap<>();
-        if (search != null && !search.isEmpty())
-            parameters.put("query", search);
-        if (genre != null)
-            parameters.put("genre", genre.name());
-        if (rating != null)
-            parameters.put("ratingFrom", rating.toString());
-        if (releaseYear != null)
-            parameters.put("releaseYear", releaseYear.toString());
-
         try {
-            movies.addAll(movieAPI.searchMovies(parameters));
+            movies.addAll(movieAPI.searchMovies(search, genre, rating, releaseYear));
         } catch (Exception e) {
             showExceptionAlert("while API search", new MovieApiException(e.getMessage()));
         }
@@ -237,7 +227,7 @@ public class HomeController implements Initializable, Observer {
         try {
             watchlistRepository.addToWatchlist(movie);
         } catch (SQLException e) {
-            showExceptionAlert("while adding item from watchlist", new DatabaseException("Error while adding item from watchlist", e));
+            showExceptionAlert("while adding item from watchlist", new DatabaseException("Error while adding item to watchlist", e));
         }
     }
 

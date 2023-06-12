@@ -3,6 +3,8 @@ package at.ac.fhcampuswien.fhmdb.data;
 import at.ac.fhcampuswien.fhmdb.business.controller.WatchlistChangeEvent;
 import at.ac.fhcampuswien.fhmdb.business.models.Movie;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -38,19 +40,25 @@ public class WatchlistRepository implements Observable{
         return watchlistDao.queryForAll();
     }
 
-    public boolean addToWatchlist(Movie movie) throws SQLException {
-        if (watchlistDao.queryForMatching(movieToWatchlist(movie)).isEmpty()){
+    public void addToWatchlist(Movie movie) throws SQLException {
+        // using parameterized queries to andle the proper escaping of special characters like single quotes (JdbcSQLSyntaxErrorException in Schindler's List)
+        QueryBuilder<WatchlistMovieEntity, Long> queryBuilder = watchlistDao.queryBuilder();
+        queryBuilder.where().eq("apiId", movie.getId()); // checks if a movie with the same apiId already exists in the Watchlist.
+        PreparedQuery<WatchlistMovieEntity> preparedQuery = queryBuilder.prepare();
+
+        List<WatchlistMovieEntity> existingMovies = watchlistDao.query(preparedQuery);
+
+        if (existingMovies.isEmpty()){
             watchlistDao.create(movieToWatchlist(movie));
             addingToWatchlist = true;
             notifyObserver(new WatchlistChangeEvent(movie, true));
-            return true;
+        } else {
+            notifyObserver(new WatchlistChangeEvent(movie, false));
         }
-        notifyObserver(new WatchlistChangeEvent(movie, false));
-        return false;
     }
 
     private WatchlistMovieEntity movieToWatchlist(Movie movie){
-        return new WatchlistMovieEntity(movie.getId(),movie.getTitle(), movie.getDescription(), WatchlistMovieEntity.genresToString(movie.getGenres()),movie.getReleaseYear(),movie.getImgUrl(),movie.getLengthInMinutes(),movie.getRating());
+        return new WatchlistMovieEntity(movie.getId(), movie.getTitle(), movie.getDescription(), WatchlistMovieEntity.genresToString(movie.getGenres()),movie.getReleaseYear(),movie.getImgUrl(),movie.getLengthInMinutes(),movie.getRating());
     }
 
     @Override

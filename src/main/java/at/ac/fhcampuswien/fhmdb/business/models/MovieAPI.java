@@ -7,34 +7,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 public class MovieAPI {
-    // mainURL of api
     static String url = "https://prog2.fh-campuswien.ac.at/movies";
 
-    //String testurl = new MovieAPIRequestBuilder(url + "/" + id).build(); //vl falsche klasse nicht sicher wo sein sollte
-    /*String asdf = new MovieAPIRequestBuilder(url).query("suche")
-            .genre("ACTION")
-            .releaseYear("2012")
-            .ratingFrom("8.3")
-            .build();*/ //braucht testcases
     public List<Movie> fetchMovies() {
-
         return getMovies(url);
     }
 
-    public List<Movie> searchMovies(Map<String, String> parameters) {
-        if (parameters != null) {
-            for (Map.Entry<String, String> entry : parameters.entrySet()) {
-                if (!url.contains("?"))
-                    url = url.concat("?").concat(entry.getKey()).concat("=").concat(entry.getValue());
-                else
-                    url = url.concat("&").concat(entry.getKey()).concat("=").concat(entry.getValue());
-            }
-        }
-        return getMovies(url);
+    public List<Movie> searchMovies(String search, Genre genre, Double rating, Integer releaseYear) {
+        String filteredUrl = new MovieAPIRequestBuilder(url).query(search)
+                .genre(genre.name())
+                .ratingFrom(rating.toString())
+                .releaseYear(releaseYear.toString())
+                .build();
+
+        return getMovies(filteredUrl);
     }
 
     private static List<Movie> getMovies(String url) {
