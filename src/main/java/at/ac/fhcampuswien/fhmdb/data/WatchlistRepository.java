@@ -10,15 +10,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WatchlistRepository implements Observable{
+public class WatchlistRepository extends Observable{
     private static WatchlistRepository _instance;
     private Dao<WatchlistMovieEntity, Long> watchlistDao;
-    private List<Observer> observers;
 
     private WatchlistRepository()
     {
         this.watchlistDao = Database.getWatchlistMovieDao();
-        this.observers = new ArrayList<>(); //needs Initialiion else can't start pr
+        //this.observers = new ArrayList<>(); //needs Initialiion else can't start pr
     }
     public static WatchlistRepository getInstance()
     {
@@ -55,22 +54,5 @@ public class WatchlistRepository implements Observable{
 
     private WatchlistMovieEntity movieToWatchlist(Movie movie){
         return new WatchlistMovieEntity(movie.getId(), movie.getTitle(), movie.getDescription(), WatchlistMovieEntity.genresToString(movie.getGenres()),movie.getReleaseYear(),movie.getImgUrl(),movie.getLengthInMinutes(),movie.getRating());
-    }
-
-    @Override
-    public void addObserver(Observer observer) {
-        observers.add(observer);
-    }
-
-    @Override
-    public void removeObserver(Observer observer) {
-        observers.remove(observer);
-    }
-
-    @Override
-    public void notifyObserver(WatchlistChangeEvent event) {
-        for (Observer observer : observers) {
-            observer.update(this, event);
-        }
     }
 }

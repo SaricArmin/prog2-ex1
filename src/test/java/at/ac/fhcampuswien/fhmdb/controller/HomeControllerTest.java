@@ -90,10 +90,7 @@ class HomeControllerTest {
     //singleton
     void testWatchListRepositorySingleton()
     {
-        WatchlistRepository instance1 = WatchlistRepository.getInstance();
-        WatchlistRepository instance2 = WatchlistRepository.getInstance();
-        assertEquals(instance1, instance2);
-
+        assertEquals(WatchlistRepository.getInstance(), WatchlistRepository.getInstance());
     }
 
     @Test
